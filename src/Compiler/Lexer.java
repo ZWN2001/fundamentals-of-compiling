@@ -56,12 +56,16 @@ public class Lexer {
     }
 
     Token number() {
-        // 返回从输入中消耗的(多位数)整数或浮点数。
+        // 返回从输入中消耗的(多位数)整数或浮点数的Token。
         int oldColumn = Error.column;
         StringBuilder result = new StringBuilder();
         while (this.currentChar != 0 && ('0' <= currentChar && currentChar <= '9')) {
             result.append(this.currentChar);
             this.advance();
+        }
+        //其实可能数字后面跟着一些其他符号的情况也是错的，但是这里不做处理
+        if(('A' <= input.charAt(readPosition+1) && input.charAt(readPosition+1) <= 'Z') || ('a' <= input.charAt(readPosition+1) && input.charAt(readPosition+1) <= 'z') ){
+            Error.error(Error.lineno, Error.column,"语法错误，数字后面不能跟字母");
         }
         Token token = new Token();
         token.type = TokenType.TK_INTEGER_CONST;
@@ -104,6 +108,7 @@ public class Lexer {
             }
 
             // 读入的是标识符，对标识符进行处理
+            //变量名或者是保留字
             if (this.isIdent(this.currentChar)) {
                 int oldColumn = Error.column;
                 StringBuilder result = new StringBuilder();
