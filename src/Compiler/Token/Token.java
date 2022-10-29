@@ -9,7 +9,7 @@ public class Token {
 
     @Override
     public String toString() {
-        return "Compiler.Token.Token{" +
+        return "Token{" +
                 "type='" + type + '\'' +
                 ", value='" + value + '\'' +
                 ", lineno=" + lineno +
