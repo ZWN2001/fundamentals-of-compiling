@@ -65,7 +65,7 @@ public class Lexer {
         }
         //其实可能数字后面跟着一些其他符号的情况也是错的，但是这里不做处理
         if(('A' <= input.charAt(readPosition+1) && input.charAt(readPosition+1) <= 'Z') || ('a' <= input.charAt(readPosition+1) && input.charAt(readPosition+1) <= 'z') ){
-            Error.error(Error.lineno, Error.column,"语法错误，数字后面不能跟字母");
+            Error.error(Error.lineno, Error.column,"error，数字后面不能跟字母");
         }
         Token token = new Token();
         token.type = TokenType.TK_INTEGER_CONST;
