@@ -19,16 +19,22 @@ public class Parser {
         return lexer.getNextToken();
     }
 
+    public Parser(Lexer lexer) {
+        this.lexer = lexer;
+        this.currentToken = lexer.getNextToken();
+        this.currentFunctionName = "";
+    }
+
     void error(String errorCode, Token token) throws Throwable {
         String message = "Error: "+errorCode+" at line "+token.lineno+" column "+token.column;
         throw Objects.requireNonNull(ParserError.error(message));
     }
 
     void eat(String tokenType) throws Throwable {
-        if (currentToken.type.equals(tokenType)){
+        if (Objects.equals(currentToken.type,TokenType.tokenMap.get(tokenType))){
             currentToken = getNextToken();
         }else {
-            error("Syntax error", currentToken);
+            error("Syntax error:"+currentToken + "is not type of "+ TokenType.tokenMap.get(tokenType), currentToken);
         }
     }
 
@@ -37,7 +43,7 @@ public class Parser {
     AstNode primary() throws Throwable {
         Token token = currentToken;
         //# 括号匹配
-        if (Objects.equals(token.type, TokenType.TK_LPAREN)) {
+        if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_LPAREN))) {
             eat(TokenType.TK_LPAREN);
             AstNode node = expression();
             eat(TokenType.TK_RPAREN);
@@ -45,16 +51,17 @@ public class Parser {
         }
 
         //标识符
-        if (Objects.equals(token.type, TokenType.TK_IDENT)) {
+        if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_IDENT))) {
             eat(TokenType.TK_IDENT);
-            if (Objects.equals(currentToken.type, TokenType.TK_LPAREN)) {
+            if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_LPAREN))) {
                 String function_name = token.value;
                 eat(TokenType.TK_LPAREN);
                 ArrayList<AstNode> actualParameterNodes = new ArrayList<>();
-                if (!Objects.equals(currentToken.type, TokenType.TK_RPAREN)) {
-                    actualParameterNodes.add(assign());
+                if (!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_RPAREN))) {
+                    AstNode node = assign();
+                    actualParameterNodes.add(node);
                 }
-                while (Objects.equals(currentToken.type, TokenType.TK_COMMA)) {
+                while (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_COMMA))) {
                     eat(TokenType.TK_COMMA);
                     actualParameterNodes.add(assign());
                 }
@@ -64,7 +71,7 @@ public class Parser {
             return new VarNode(token);
         }
 
-        if(Objects.equals(token.type, TokenType.TK_INTEGER_CONST)){
+        if(Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_INTEGER_CONST))){
             eat(TokenType.TK_INTEGER_CONST);
             return new NumNode(token);
         }
@@ -81,7 +88,7 @@ public class Parser {
     AstNode assign() throws Throwable {
         AstNode node = equality();
         Token token = currentToken;
-        if (Objects.equals(token.type, TokenType.TK_ASSIGN)) {
+        if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_ASSIGN))) {
             eat(TokenType.TK_ASSIGN);
             node = new AssignNode(node, assign(), token);
         }
@@ -94,10 +101,10 @@ public class Parser {
         Token token;
         while(true){
             token = currentToken;
-            if (Objects.equals(token.type, TokenType.TK_EQ)){
+            if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_EQ))){
                 eat(TokenType.TK_EQ);
                 node = new BinaryOpNode(node, relational(), token);
-            }else if (Objects.equals(token.type, TokenType.TK_NE)){
+            }else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_NE))){
                 eat(TokenType.TK_NE);
                 node = new BinaryOpNode(node, relational(), token);
             }else {
@@ -112,16 +119,16 @@ public class Parser {
         Token token;
         while(true){
             token = currentToken;
-            if (Objects.equals(token.type, TokenType.TK_LT)){
+            if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_LT))){
                 eat(TokenType.TK_LT);
                 node = new BinaryOpNode(node, addSub(), token);
-            }else if (Objects.equals(token.type, TokenType.TK_GT)){
+            }else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_GT))){
                 eat(TokenType.TK_GT);
                 node = new BinaryOpNode(node, addSub(), token);
-            }else if (Objects.equals(token.type, TokenType.TK_LE)){
+            }else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_LE))){
                 eat(TokenType.TK_LE);
                 node = new BinaryOpNode(node, addSub(), token);
-            }else if (Objects.equals(token.type, TokenType.TK_GE)){
+            }else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_GE))){
                 eat(TokenType.TK_GE);
                 node = new BinaryOpNode(node, addSub(), token);
             }else {
@@ -136,11 +143,11 @@ public class Parser {
         Token token;
         while (true) {
             token = currentToken;
-            if (Objects.equals(token.type, TokenType.TK_PLUS)) {
+            if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_PLUS))) {
                 eat(TokenType.TK_PLUS);
                 node = new BinaryOpNode(node, mulDiv(), token);
                 continue;
-            } else if (Objects.equals(token.type, TokenType.TK_MINUS)) {
+            } else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_MINUS))) {
                 eat(TokenType.TK_MINUS);
                 node = new BinaryOpNode(node, mulDiv(), token);
                 continue;
@@ -155,11 +162,11 @@ public class Parser {
         Token token;
         while (true) {
             token = currentToken;
-            if (Objects.equals(token.type, TokenType.TK_MUL)) {
+            if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_MUL))) {
                 eat(TokenType.TK_MUL);
                 node = new BinaryOpNode(node, unary(), token);
                 continue;
-            }else if (Objects.equals(token.type, TokenType.TK_DIV)){
+            }else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_DIV))){
                 eat(TokenType.TK_DIV);
                 node = new BinaryOpNode(node, unary(), token);
                 continue;
@@ -172,10 +179,10 @@ public class Parser {
     //  #        | primary
     AstNode unary() throws Throwable {
         Token token = currentToken;
-        if (Objects.equals(token.type, TokenType.TK_PLUS)){
+        if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_PLUS))){
             eat(TokenType.TK_PLUS);
             return new UnaryOpNode(token,unary());
-        }else if (Objects.equals(token.type, TokenType.TK_MINUS)){
+        }else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_MINUS))){
             eat(TokenType.TK_MINUS);
             return new UnaryOpNode(token,unary());
         }else {
@@ -187,11 +194,11 @@ public class Parser {
     AstNode expressionStatement() throws Throwable {
         AstNode node = null;
         Token token = currentToken;
-        if(Objects.equals(token.type, TokenType.TK_SEMICOLON)){
+        if(Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_SEMICOLON))){
             eat(TokenType.TK_SEMICOLON);
         }else {
             node = expression();
-            if (Objects.equals(currentToken.type, TokenType.TK_SEMICOLON)){
+            if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_SEMICOLON))){
                 eat(TokenType.TK_SEMICOLON);
             }else {
                 Error.error(token.lineno, token.column - token.width + 1, "expect \";\"");
@@ -208,24 +215,24 @@ public class Parser {
     //    #             | "if" "(" expression ")" statement ("else" statement)?
     AstNode statement() throws Throwable {
         Token token = currentToken;
-        if (Objects.equals(token.type, TokenType.TK_RETURN)) {
+        if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_RETURN))) {
             eat(TokenType.TK_RETURN);
             return new ReturnNode(token, expressionStatement(), currentFunctionName);
-        } else if (Objects.equals(token.type, TokenType.TK_LBRACE)) {
+        } else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_LBRACE))) {
             return block();
-        } else if (Objects.equals(token.type, TokenType.TK_IF)) {
+        } else if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_IF))) {
             AstNode condition = null;
             AstNode thenStatement = null;
             AstNode elseStatement = null;
             eat(TokenType.TK_IF);
-            if (Objects.equals(currentToken.type, TokenType.TK_LPAREN)) {
+            if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_LPAREN))) {
                 eat(TokenType.TK_LPAREN);
                 condition = expression();
                 eat(TokenType.TK_RPAREN);
-                if (Objects.equals(currentToken.type, TokenType.TK_THEN)) {
+                if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_THEN))) {
                     eat(TokenType.TK_THEN);
                     thenStatement = statement();
-                    if (Objects.equals(currentToken.type, TokenType.TK_ELSE)) {
+                    if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_ELSE))) {
                         eat(TokenType.TK_ELSE);
                         elseStatement = statement();
                     }
@@ -243,26 +250,23 @@ public class Parser {
     // type_specification = int
     AstNode typeSpecification() throws Throwable {
         Token token = currentToken;
-        if (Objects.equals(token.type, TokenType.TK_INT)){
+        if (Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_INT))){
             eat(TokenType.TK_INT);
-            return new Type(token);
-        }else {
-            Error.error(token.lineno, token.column - token.width + 1, "expect type");
-            return null;
         }
+        return new Type(token);
     }
 
     // variable_declaration = type_specification (indentifier ("=" expr)? ("," indentifier ("=" expr)?)*)? ";"
     ArrayList<AstNode> variableDeclaration() throws Throwable {
         AstNode typeNode = typeSpecification();
         ArrayList<AstNode> variableNodes = new ArrayList<>();
-        while (!Objects.equals(currentToken.type, TokenType.TK_SEMICOLON)){
-            if (Objects.equals(currentToken.type, TokenType.TK_IDENT)){
+        while (!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_SEMICOLON))){
+            if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_IDENT))){
                 AstNode varNode = new VarNode(currentToken);
                 AstNode node = new VarDeclNode(typeNode, varNode);
                 eat(TokenType.TK_IDENT);
                 variableNodes.add(node);
-                if(Objects.equals(currentToken.type, TokenType.TK_COMMA)){
+                if(Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_COMMA))){
                     eat(TokenType.TK_COMMA);
                 }
             }
@@ -274,8 +278,9 @@ public class Parser {
     // compound_statement = (variable_declaration | statement)*
     ArrayList<AstNode> compoundStatement() throws Throwable {
         ArrayList<AstNode> statementNodes = new ArrayList<>();
-        while (!Objects.equals(currentToken.type, TokenType.TK_RBRACE) && !Objects.equals(currentToken.type, TokenType.TK_EOF)) {
-            if(Objects.equals(currentToken.type, TokenType.TK_INT)){
+        while (!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_RBRACE))
+                && !Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_EOF))) {
+            if(Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_INT))){
                 ArrayList<AstNode> variableNodes = variableDeclaration();
                 statementNodes.addAll(variableNodes);
             }else {
@@ -290,7 +295,7 @@ public class Parser {
 
     // block = "{" compound_statement "}"
     AstNode block() throws Throwable {
-        if (Objects.equals(currentToken.type, TokenType.TK_LBRACE)){
+        if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_LBRACE))){
             Token ltoken = currentToken;
             eat(TokenType.TK_LBRACE);
             ArrayList<AstNode> nodes = compoundStatement();
@@ -306,14 +311,15 @@ public class Parser {
         AstNode typeNode = typeSpecification();
         AstNode varNode = new VarNode(currentToken);
         eat(TokenType.TK_IDENT);
-        return new VarDeclNode(typeNode, varNode);
+        return new FormalParamNode(typeNode, varNode);
     }
 
     // formal_parameters = formal_parameter (, formal_parameter)*
     ArrayList<AstNode> formalParameters() throws Throwable {
         ArrayList<AstNode> parameterNodes = new ArrayList<>();
-        parameterNodes.add(formalParameter());
-        while (!Objects.equals(currentToken.type, TokenType.TK_RPAREN)){
+        AstNode node = formalParameter();
+        parameterNodes.add(node);
+        while (!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_RPAREN))){
             eat(TokenType.TK_COMMA);
             parameterNodes.add(formalParameter());
         }
@@ -327,17 +333,16 @@ public class Parser {
         String functionName = currentToken.value;
         eat(TokenType.TK_IDENT);
         ArrayList<AstNode> formalParams = new ArrayList<>();
-        if(Objects.equals(currentToken.type, TokenType.TK_LPAREN)){
+        if(Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_LPAREN))){
             eat(TokenType.TK_LPAREN);
-            formalParams = formalParameters();
-            if (Objects.equals(currentToken.type, TokenType.TK_RPAREN)) {
+            if(!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_RPAREN))){
                 formalParams = formalParameters();
             }
             eat(TokenType.TK_RPAREN);
         }
         currentFunctionName = functionName;
         AstNode blockNode = null;
-        if (Objects.equals(currentToken.type, TokenType.TK_LBRACE)) {
+        if (Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_LBRACE))) {
             blockNode = block();
         }else {
             Error.error(token.lineno, token.column - token.width + 1, "expect \"{\"");
@@ -347,11 +352,11 @@ public class Parser {
 
     public ArrayList<AstNode> parse() throws Throwable {
         ArrayList<AstNode> functionDefinitionNodes = new ArrayList<>();
-        while (!Objects.equals(currentToken.type, TokenType.TK_EOF)){
+        while (!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_EOF))){
             AstNode node = functionDefinition();
             functionDefinitionNodes.add(node);
         }
-        if(!Objects.equals(currentToken.type, TokenType.TK_EOF)){
+        if(!Objects.equals(currentToken.type, TokenType.tokenMap.get(TokenType.TK_EOF))){
             error(ErrorCode.UNEXPECTED_TOKEN,currentToken);
         }
         return functionDefinitionNodes;

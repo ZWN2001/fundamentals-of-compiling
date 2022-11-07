@@ -13,4 +13,13 @@ public class BlockNode extends AstNode {
         this.rtok = rtok;
         this.stmts = stmts;
     }
+
+    @Override
+    public String toString() {
+        return "BlockNode{" +
+                "ltok=" + ltok +
+                ", rtok=" + rtok +
+                ", stmts=" + stmts +
+                '}';
+    }
 }

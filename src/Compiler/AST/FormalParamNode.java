@@ -10,4 +10,13 @@ public class FormalParamNode extends AstNode {
         this.parameterNode = parameterNode;
         this.parameterSymbol = "";
     }
+
+    @Override
+    public String toString() {
+        return "FormalParamNode{" +
+                "typeNode=" + typeNode +
+                ", parameterNode=" + parameterNode +
+                ", parameterSymbol='" + parameterSymbol + '\'' +
+                '}';
+    }
 }

@@ -9,4 +9,12 @@ public class Type extends AstNode {
         this.token = token;
         this.value = token.value;
     }
+
+    @Override
+    public String toString() {
+        return "Type{" +
+                "token=" + token +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

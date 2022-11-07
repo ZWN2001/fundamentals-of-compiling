@@ -9,4 +9,12 @@ public class NumNode extends AstNode {
         this.token = token;
         this.value = token.value;
     }
+
+    @Override
+    public String toString() {
+        return "NumNode{" +
+                "token=" + token +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

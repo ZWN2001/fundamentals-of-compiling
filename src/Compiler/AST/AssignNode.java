@@ -12,4 +12,13 @@ public class AssignNode extends AstNode {
         this.right = right;
         this.op = op;
     }
+
+    @Override
+    public String toString() {
+        return "AssignNode{" +
+                "left=" + left +
+                ", right=" + right +
+                ", op=" + op +
+                '}';
+    }
 }

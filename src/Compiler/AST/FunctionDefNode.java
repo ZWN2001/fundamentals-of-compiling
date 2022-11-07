@@ -16,4 +16,15 @@ public class FunctionDefNode extends AstNode {
         this.blockNode = blockNode;
         this.offset = 0;
     }
+
+    @Override
+    public String toString() {
+        return "FunctionDefNode{" +
+                "typeNode=" + typeNode +
+                ", functionName='" + functionName + '\'' +
+                ", formalParameters=" + formalParameters +
+                ", blockNode=" + blockNode +
+                ", offset=" + offset +
+                '}';
+    }
 }

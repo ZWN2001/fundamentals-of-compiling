@@ -11,4 +11,13 @@ public class VarNode extends AstNode {
         this.value = token.value;
         this.symbol = "";
     }
+
+    @Override
+    public String toString() {
+        return "VarNode{" +
+                "token=" + token +
+                ", value='" + value + '\'' +
+                ", symbol='" + symbol + '\'' +
+                '}';
+    }
 }

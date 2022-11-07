@@ -12,4 +12,13 @@ public class BinaryOpNode extends AstNode {
         this.right = right;
         this.op = op;
     }
+
+    @Override
+    public String toString() {
+        return "BinaryOpNode{" +
+                "left=" + left +
+                ", right=" + right +
+                ", op=" + op +
+                '}';
+    }
 }

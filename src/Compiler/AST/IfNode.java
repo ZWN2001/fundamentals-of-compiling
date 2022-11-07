@@ -10,4 +10,13 @@ public class IfNode extends AstNode {
         this.thenStmt = thenStmt;
         this.elseStmt = elseStmt;
     }
+
+    @Override
+    public String toString() {
+        return "IfNode{" +
+                "condition=" + condition +
+                ", thenStmt=" + thenStmt +
+                ", elseStmt=" + elseStmt +
+                '}';
+    }
 }

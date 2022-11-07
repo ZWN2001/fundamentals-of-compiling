@@ -9,5 +9,13 @@ public class UnaryOpNode extends AstNode {
         this.op = op;
         this.right = right;
     }
+
+    @Override
+    public String toString() {
+        return "UnaryOpNode{" +
+                "op=" + op +
+                ", right=" + right +
+                '}';
+    }
 }
 

@@ -13,4 +13,13 @@ public FunctionCallNode(String functionName, ArrayList<AstNode> actualParameterN
         this.actualParameterNodes = actualParameterNodes;
         this.token = token;
     }
+
+    @Override
+    public String toString() {
+        return "FunctionCallNode{" +
+                "functionName='" + functionName + '\'' +
+                ", actualParameterNodes=" + actualParameterNodes +
+                ", token=" + token +
+                '}';
+    }
 }

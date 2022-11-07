@@ -11,4 +11,13 @@ public class ReturnNode extends AstNode {
         this.right = right;
         this.currentFunctionName = currentFunctionName;
     }
+
+    @Override
+    public String toString() {
+        return "ReturnNode{" +
+                "token=" + token +
+                ", right=" + right +
+                ", currentFunctionName='" + currentFunctionName + '\'' +
+                '}';
+    }
 }

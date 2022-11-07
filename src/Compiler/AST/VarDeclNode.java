@@ -8,4 +8,12 @@ public class VarDeclNode extends AstNode {
         this.typeNode = typeNode;
         this.varNode = varNode;
     }
+
+    @Override
+    public String toString() {
+        return "VarDeclNode{" +
+                "typeNode=" + typeNode +
+                ", varNode=" + varNode +
+                '}';
+    }
 }

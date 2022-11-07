@@ -68,7 +68,7 @@ public class Lexer {
             Error.error(Error.lineno, Error.column,"error，数字后面不能跟字母");
         }
         Token token = new Token();
-        token.type = TokenType.TK_INTEGER_CONST;
+        token.type = TokenType.tokenMap.get(TokenType.TK_INTEGER_CONST);
         token.value = result.toString();
         token.lineno = Error.lineno;
         token.column = Error.column;
@@ -120,7 +120,7 @@ public class Lexer {
                 if (TokenType.tokenMap.containsKey(result.toString())) {
                     token.type = TokenType.tokenMap.get(result.toString());
                 } else {
-                    token.type = TokenType.TK_IDENT;
+                    token.type = TokenType.tokenMap.get(TokenType.TK_IDENT);
                 }
                 token.value = result.toString();
                 token.lineno = Error.lineno; // 标识token的位置
@@ -157,14 +157,14 @@ public class Lexer {
 
         }
         Token token = new Token();
-        token.type = TokenType.TK_EOF;
+        token.type = TokenType.tokenMap.get(TokenType.TK_EOF);
         return token;
     }
 
     ArrayList<Token> gatherAllTokens(){
         Token token = this.getNextToken();
         this.tokens.add(token);
-        while (!Objects.equals(token.type, TokenType.TK_EOF)) {
+        while (!Objects.equals(token.type, TokenType.tokenMap.get(TokenType.TK_EOF))) {
             token = this.getNextToken();
             this.tokens.add(token);
         }
