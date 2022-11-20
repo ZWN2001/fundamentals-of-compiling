@@ -12,12 +12,11 @@ public class Compiler {
         String fileName = "tmpc";
         String inputfilePlainText = readFile(fileName);
         Lexer lexer = new Lexer(inputfilePlainText);
-//        ArrayList<Token> tokens = lexer.gatherAllTokens();
-//        for (Token token : tokens) {
-//            System.out.println(token);
-//        }
         Parser parser = new Parser(lexer);
         ArrayList<AstNode> tree = parser.parse();
+
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        semanticAnalyzer.semanticAnalyze(tree);
 
     }
 

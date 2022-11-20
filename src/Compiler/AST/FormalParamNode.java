@@ -1,14 +1,16 @@
 package Compiler.AST;
 
+import Compiler.Analyzer.Symbol.Symbol;
+
 public class FormalParamNode extends AstNode {
     public AstNode typeNode;
     public AstNode parameterNode;
-    public String parameterSymbol;
+    public Symbol parameterSymbol;
 
     public FormalParamNode(AstNode typeNode, AstNode parameterNode) {
         this.typeNode = typeNode;
         this.parameterNode = parameterNode;
-        this.parameterSymbol = "";
+//        this.parameterSymbol = "";
     }
 
     @Override
