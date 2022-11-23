@@ -9,7 +9,7 @@ public class ScopedSymbolTable {
     public String scopeName;
     public int scopeLevel;
     public ScopedSymbolTable enclosingScope;
-    private final Map<String, Symbol> symbols = new HashMap<>();
+    private static final Map<String, Symbol> symbols = new HashMap<>();
 
     public ScopedSymbolTable(String scopeName, int scopeLevel, ScopedSymbolTable enclosingScope) {
         this.scopeName = scopeName;

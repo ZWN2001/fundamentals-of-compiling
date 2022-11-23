@@ -62,8 +62,9 @@ public class SemanticAnalyzer extends NodeVisitor {
     public void visitBlockNode(BlockNode node) throws Exception {
         String blockName = currentScope.scopeName +" block" + (currentScope.scopeLevel + 1);
         log("ENTER scope: " + blockName);
-        currentScope = new ScopedSymbolTable(blockName,
+        ScopedSymbolTable temp = new ScopedSymbolTable(blockName,
                 currentScope.scopeLevel + 1, currentScope);
+        currentScope = temp;
         for (AstNode eachnode : node.stmts) {
             visit(eachnode,index);
         }
@@ -98,7 +99,7 @@ public class SemanticAnalyzer extends NodeVisitor {
         String parameterName = ((VarNode)node.parameterNode).value;
         String parameterType = ((Type)node.typeNode).value;
         Offset.sum += 8;
-        int varOffset = Offset.sum;
+        int varOffset = -Offset.sum;
         Symbol symbol = new ParameterSymbol(parameterName, parameterType, varOffset);
         currentScope.insert(symbol);
         node.parameterSymbol = symbol;
@@ -110,8 +111,9 @@ public class SemanticAnalyzer extends NodeVisitor {
         FunctionSymbol functionSymbol = new FunctionSymbol(funcName);
         currentScope.insert(functionSymbol);
 
-        currentScope = new ScopedSymbolTable(funcName,
+        ScopedSymbolTable temp = new ScopedSymbolTable(funcName,
                 currentScope.scopeLevel + 1, currentScope);
+        currentScope = temp;
         for (AstNode eachnode : node.formalParameters) {
             visit(eachnode,index);
         }
@@ -121,7 +123,7 @@ public class SemanticAnalyzer extends NodeVisitor {
         functionSymbol.blockAst = node.blockNode;
     }
 
-    void visitFunctionCallNode(FunctionCallNode node) {}
+    public void visitFunctionCallNode(FunctionCallNode node) {}
 
     void semanticAnalyze(ArrayList<AstNode> tree) throws Exception {
         for (AstNode node : tree) {

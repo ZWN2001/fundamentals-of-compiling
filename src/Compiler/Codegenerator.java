@@ -2,6 +2,7 @@ package Compiler;
 
 import Compiler.AST.*;
 import Compiler.Analyzer.NodeVisitor;
+import Compiler.Analyzer.Symbol.ParameterSymbol;
 import Compiler.Analyzer.Symbol.VarSymbol;
 import Compiler.ConstantAndBuffer.Constant;
 import Compiler.Token.TokenType;
@@ -121,7 +122,7 @@ public class Codegenerator extends NodeVisitor {
     }
 
     public void visitVarNode(VarNode node){
-        int varOffset = ((VarSymbol)node.symbol).varOffset;
+        int varOffset = ((ParameterSymbol)node.symbol).parameterOffset;
         System.out.println("  lea "+varOffset+"(%rbp), %rax");
         System.out.println("  mov (%rax), %rax");
     }
@@ -156,7 +157,7 @@ public class Codegenerator extends NodeVisitor {
 
         int i = 0;
         for (AstNode eachnode : node.formalParameters) {
-            int varOffset = ((VarSymbol)((FormalParamNode)eachnode).parameterSymbol).varOffset;
+            int varOffset = ((ParameterSymbol)((FormalParamNode)eachnode).parameterSymbol).parameterOffset;
 //            System.out.println("  lea "+varOffset+"(%rbp), %rax");
 //            System.out.println("  mov "+Constant.parameter_registers[i]+"(%rsp), %rdi");
 //            System.out.println("  mov %rdi, (%rax)");
