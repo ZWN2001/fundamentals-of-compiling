@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class SemanticAnalyzer extends NodeVisitor {
+    private final int index = 0;
     ScopedSymbolTable globalScope;
     ScopedSymbolTable currentScope;
 
@@ -22,57 +23,57 @@ public class SemanticAnalyzer extends NodeVisitor {
         currentScope = globalScope;
     }
 
-    void log(String msg) {
+    public void log(String msg) {
         System.out.println(msg);
     }
 
-    void visitUnaryOpNode(UnaryOpNode node) {
+    public void visitUnaryOpNode(UnaryOpNode node) {
 //        visit(node);
     }
 
-    void visitReturnNode(ReturnNode node){
-        visit(node.right);
+    public void visitReturnNode(ReturnNode node) throws Exception {
+        visit(node.right,index);
     }
 
-    void visitBinaryOpNode(BinaryOpNode node) {
-        visit(node.left);
-        visit(node.right);
+    public void visitBinaryOpNode(BinaryOpNode node) throws Exception {
+        visit(node.left,index);
+        visit(node.right,index);
     }
 
-    void visitAssignNode(AssignNode node) {
+    public void visitAssignNode(AssignNode node) throws Exception {
           // make sure the left side of assign is a varible
         if (!Objects.equals(((VarNode) node.left).token.type, TokenType.TK_IDENT)){
             throw new RuntimeException("Semantic Error: left side of assign must be a variable");
         }
-        visit(node.right);
-        visit(node.left);
+        visit(node.right,index);
+        visit(node.left,index);
     }
 
-    void visitIfNode(IfNode node){
-        visit(node.condition);
+    public void visitIfNode(IfNode node) throws Exception {
+        visit(node.condition,index);
         if(node.thenStmt != null){
-            visit(node.thenStmt);
+            visit(node.thenStmt,index);
         }
         if(node.elseStmt != null){
-            visit(node.elseStmt);
+            visit(node.elseStmt,index);
         }
     }
 
-    void visitBlockNode(BlockNode node){
+    public void visitBlockNode(BlockNode node) throws Exception {
         String blockName = currentScope.scopeName +" block" + (currentScope.scopeLevel + 1);
         log("ENTER scope: " + blockName);
         currentScope = new ScopedSymbolTable(blockName,
                 currentScope.scopeLevel + 1, currentScope);
         for (AstNode eachnode : node.stmts) {
-            visit(eachnode);
+            visit(eachnode,index);
         }
         currentScope = currentScope.enclosingScope;
         log("LEAVE scope: " + blockName);
     }
 
-    void visitNumNode(NumNode node) {}
+    public void visitNumNode(NumNode node) {}
 
-    void visitVarNode(VarNode node) {
+    public void visitVarNode(VarNode node) {
         String varName = node.value;
         Symbol symbol = currentScope.lookup(varName);
         if (symbol == null) {
@@ -83,7 +84,7 @@ public class SemanticAnalyzer extends NodeVisitor {
         }
     }
 
-    void visitVarDeclNode(VarDeclNode node) {
+    public void visitVarDeclNode(VarDeclNode node) {
         String varName = ((VarNode)node.varNode).value;
         String varType = ((Type)node.typeNode).value;
         Offset.sum += 8;
@@ -93,7 +94,7 @@ public class SemanticAnalyzer extends NodeVisitor {
 //        ((VarNode)node.varNode).symbol = symbol;
     }
 
-    void visitFormalParamNode(FormalParamNode node){
+    public void visitFormalParamNode(FormalParamNode node){
         String parameterName = ((VarNode)node.parameterNode).value;
         String parameterType = ((Type)node.typeNode).value;
         Offset.sum += 8;
@@ -103,7 +104,7 @@ public class SemanticAnalyzer extends NodeVisitor {
         node.parameterSymbol = symbol;
     }
 
-    void visit_FunctionDef_Node(FunctionDefNode node) {
+    public void visitFunctionDefNode(FunctionDefNode node) throws Exception {
         Offset.sum = 0;
         String funcName = node.functionName;
         FunctionSymbol functionSymbol = new FunctionSymbol(funcName);
@@ -111,11 +112,10 @@ public class SemanticAnalyzer extends NodeVisitor {
 
         currentScope = new ScopedSymbolTable(funcName,
                 currentScope.scopeLevel + 1, currentScope);
-//        currentScope=
         for (AstNode eachnode : node.formalParameters) {
-            visit(eachnode);
+            visit(eachnode,index);
         }
-        visit(node.blockNode);
+        visit(node.blockNode,index);
         node.offset = Offset.sum;
         currentScope = currentScope.enclosingScope;
         functionSymbol.blockAst = node.blockNode;
@@ -123,10 +123,10 @@ public class SemanticAnalyzer extends NodeVisitor {
 
     void visitFunctionCallNode(FunctionCallNode node) {}
 
-    void semanticAnalyze(ArrayList<AstNode> tree) {
+    void semanticAnalyze(ArrayList<AstNode> tree) throws Exception {
         for (AstNode node : tree) {
             if (node != null){
-                visit(node);
+                visit(node,index);
             }
         }
     }

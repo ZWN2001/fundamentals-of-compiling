@@ -12,28 +12,29 @@ import java.util.Objects;
 import static Compiler.Error.ParserError.error;
 
 public class Codegenerator extends NodeVisitor {
+    private final int index = 1;
     public int alignTo(int size, int align) {
         return (size + align - 1) / align * align;
     }
 
-    void visitUnaryOpNode(UnaryOpNode node){
-        visit(node.right);
+    public void visitUnaryOpNode(UnaryOpNode node) throws Exception {
+        visit(node.right,index);
         if(Objects.equals(node.op.type, TokenType.TK_MINUS)){
             System.out.println("neg");
         }
     }
 
-    void visitReturnNode(ReturnNode node){
-        visit(node.right);
+    public void visitReturnNode(ReturnNode node) throws Exception {
+        visit(node.right,index);
         if(Objects.equals(node.token.type, TokenType.TK_RETURN)){
             System.out.println("neg");
         }
     }
 
-    void visitBinaryOpNode(BinaryOpNode node){
-        visit(node.left);
+    public void visitBinaryOpNode(BinaryOpNode node) throws Exception {
+        visit(node.left,index);
         System.out.println("push rax");
-        visit(node.right);
+        visit(node.right,index);
         System.out.println("pop rdi");
         if(Objects.equals(node.op.type, TokenType.TK_PLUS)){
             System.out.println("  add %rdi, %rax");
@@ -80,12 +81,12 @@ public class Codegenerator extends NodeVisitor {
         }
     }
 
-    void visitAssignNode(AssignNode node) throws Throwable {
+    public void visitAssignNode(AssignNode node) throws Throwable {
         if (Objects.equals(((VarNode) (node.left)).token.type, TokenType.TK_IDENT)){
             int varOffset = ((VarSymbol)((VarNode) (node.left)).symbol).varOffset;
             System.out.println("  lea "+varOffset+"{var_offset}(%rbp), %rax");
             System.out.println("  push %rax");
-            visit(node.right);
+            visit(node.right,index);
             System.out.println("  pop %rdi");
             System.out.println("  mov %rax, (%rdi)");
         }else {
@@ -93,46 +94,46 @@ public class Codegenerator extends NodeVisitor {
         }
     }
 
-    void visitNumNode(NumNode node){
+    public void visitNumNode(NumNode node){
         System.out.println("  mov $"+node.token.value+", %rax");
     }
 
-    void visitIfNode(IfNode node){
+    public void visitIfNode(IfNode node) throws Exception {
         Count.i++;
-        visit(node.condition);
+        visit(node.condition,index);
         System.out.println("  cmp $0, %rax");
         System.out.println("  je .Lelse"+Count.i);
         if(node.thenStmt != null){
-            visit(node.thenStmt);
+            visit(node.thenStmt,index);
         }
         System.out.println("  jmp .Lend"+Count.i);
         System.out.println(".Lelse"+Count.i+":");
         if(node.elseStmt != null){
-            visit(node.elseStmt);
+            visit(node.elseStmt,index);
         }
         System.out.println(".Lend"+Count.i+":");
     }
 
-    void visit_Block_Node(BlockNode node){
+    public void visitBlockNode(BlockNode node) throws Exception {
         for (AstNode eachnode : node.stmts) {
-            visit(eachnode);
+            visit(eachnode,index);
         }
     }
 
-    void visitVarNode(VarNode node){
+    public void visitVarNode(VarNode node){
         int varOffset = ((VarSymbol)node.symbol).varOffset;
         System.out.println("  lea "+varOffset+"(%rbp), %rax");
         System.out.println("  mov (%rax), %rax");
     }
 
-    void visitVarDeclNode(VarDeclNode node){}
+    public void visitVarDeclNode(VarDeclNode node){}
 
-    void visitFormalParamNode(FormalParamNode node){}
+    public void visitFormalParamNode(FormalParamNode node){}
 
-    void visitFunctionCallNode(FunctionCallNode node){
+    public void visitFunctionCallNode(FunctionCallNode node) throws Exception {
         int nparams = 0;
         for (AstNode eachnode : node.actualParameterNodes) {
-            visit(eachnode);
+            visit(eachnode,index);
             System.out.println("  push %rax");
             nparams++;
         }
@@ -143,7 +144,7 @@ public class Codegenerator extends NodeVisitor {
         System.out.println("  call "+node.functionName);
     }
 
-    void visitFunctionDefNode(FunctionDefNode node){
+    public void visitFunctionDefNode(FunctionDefNode node) throws Exception {
         Offset.sum = 0;
         System.out.println("  .text");
         System.out.println("  .globl "+node.functionName);
@@ -163,17 +164,17 @@ public class Codegenerator extends NodeVisitor {
             i++;
         }
 
-        visit(node.blockNode);
+        visit(node.blockNode,index);
         System.out.println("."+node.functionName+".return:");
         System.out.println("  mov %rbp, %rsp");
         System.out.println("  pop %rbp");
         System.out.println("  ret");
     }
 
-    void codeGeneerate(ArrayList<AstNode> tree){
+    void codeGeneerate(ArrayList<AstNode> tree) throws Exception {
         for (AstNode node : tree) {
             if (node != null){
-                visit(node);
+                visit(node,index);
             }
         }
     }

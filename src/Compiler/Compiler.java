@@ -18,6 +18,9 @@ public class Compiler {
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.semanticAnalyze(tree);
 
+        Codegenerator codegenerator = new Codegenerator();
+        codegenerator.codeGeneerate(tree);
+
     }
 
     static String readFile(String fileName) throws IOException {
